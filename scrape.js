@@ -6,9 +6,12 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const axios = require('axios');
 
-// Airtable Configuration
-const AIRTABLE_API_KEY = 'pat1bIvxnXGC6lAPc.106a1e7792fd4c5d734b7f4e85eee19520ea1761b369d8c9c3851f06b97fac4a'; // Replace with your Airtable API key
-const AIRTABLE_BASE_URL = 'https://api.airtable.com/v0/appgwx5uo7S18ZdUP/Workflows%20Table%2001'; // Replace with your API URL
+// Airtable Configuration - hard-coded
+// const AIRTABLE_API_KEY = 'pat1bIvxnXGC6lAPc.106a1e7792fd4c5d734b7f4e85eee19520ea1761b369d8c9c3851f06b97fac4a'; // Replace with your Airtable API key
+// const AIRTABLE_BASE_URL = 'https://api.airtable.com/v0/appgwx5uo7S18ZdUP/Workflows%20Table%2001'; // Replace with your API URL
+
+const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY; // Access from Vercel environment variables
+const AIRTABLE_BASE_URL = process.env.AIRTABLE_BASE_URL; // Access from Vercel environment variables
 
 // Function to Send Data to Airtable
 async function sendToAirtable(workflows) {
@@ -48,17 +51,17 @@ async function sendToAirtable(workflows) {
         await page.goto('https://n8n.io/workflows/categories/ai/?sort=views:desc', { waitUntil: 'networkidle2' });
 
         // Load all workflows by clicking the "Load More" button
-        let loadMoreButton = await page.$('.load-more-link');
-        while (loadMoreButton) {
-          console.log("Clicking 'Load More'...");
-          await Promise.all([
-            page.click('.load-more-link'), // Click the button
-            delay(1000), // Wait for 1 second
-          ]);
+        // let loadMoreButton = await page.$('.load-more-link');
+        // while (loadMoreButton) {
+        //   console.log("Clicking 'Load More'...");
+        //   await Promise.all([
+        //     page.click('.load-more-link'), // Click the button
+        //     delay(1000), // Wait for 1 second
+        //   ]);
 
-          // Check if the button still exists
-          loadMoreButton = await page.$('.load-more-link');
-        }
+        //   // Check if the button still exists
+        //   loadMoreButton = await page.$('.load-more-link');
+        // }
 
 
         // Click "Load More" Button Once
