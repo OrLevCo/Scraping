@@ -1,5 +1,4 @@
-// api/scrape.js
-const puppeteer = require("puppeteer");
+const chromium = require("chrome-aws-lambda");
 const axios = require("axios");
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -42,15 +41,21 @@ module.exports = async (req, res) => {
     return;
   }
 
+  let browser;
+
   try {
-    const browser = await puppeteer.launch();
+    browser = await chromium.puppeteer.launch({
+      args: chromium.args,
+      executablePath: await chromium.executablePath,
+      headless: chromium.headless,
+    });
+
     const page = await browser.newPage();
 
     console.log("Navigating to AI workflows page...");
-    await page.goto(
-      "https://n8n.io/workflows/categories/ai/?sort=views:desc",
-      { waitUntil: "networkidle2" }
-    );
+    await page.goto("https://n8n.io/workflows/categories/ai/?sort=views:desc", {
+      waitUntil: "networkidle2",
+    });
 
     console.log("Scraping workflow parameters...");
     const workflows = await page.evaluate(() => {
@@ -91,11 +96,13 @@ module.exports = async (req, res) => {
 
     await sendToAirtable(workflows);
 
-    await browser.close();
-
     res.status(200).json({ message: "Workflows scraped successfully." });
   } catch (error) {
     console.error("Error scraping workflows:", error);
     res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
   }
 };
